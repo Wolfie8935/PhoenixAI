@@ -1,7 +1,10 @@
 import pyttsx3 #pip install pyttsx3
 import speech_recognition as sr #pip install speech_recognition and calling it as "sr"
+import wikipedia #pip install wikipedia
 
+import smtplib #for email
 import datetime #obviously for date and time
+import webbrowser as wb #for google
 
 engine = pyttsx3.init() #initializing
 
@@ -64,6 +67,16 @@ def TakeCommand():
         return "None"
     return query
 
+def send_mail(to,content):
+    server = smtplib.SMTP("smtp.gmail.com",587) #587 is code for gmail and smtp is for mail
+    server.ehlo()
+    server.starttls() #help us putting the connection
+
+    server.login("abc@gmail.com","password")
+    server.sendmail("abc@gmail.com",to,content)
+    server.close()
+
+
 if __name__ == "__main__":
 
     wishme()
@@ -75,5 +88,41 @@ if __name__ == "__main__":
         if "date" in query: #tell the date
             date_()
 
-        if "time" in query: #tell the time
+        elif "time" in query: #tell the time
             time_()
+
+        elif "wikipedia" in query: #search the wiki
+            speak("Searching.....")
+            query = query.replace("wikipedia","")
+            result = wikipedia.summary(query,sentences=3)
+            speak("According to wikipedia,")
+            print(result)
+            speak(result)
+
+        elif "send email" in query: #send mail
+            try:
+                speak("What should i say?")
+                content = TakeCommand()
+                speak("Who is the lucky receiver partner?")
+                receiver = TakeCommand()
+                speak("The receiver's email address is ")
+                speak(receiver)
+                to = receiver
+                send_mail(to,content)
+                print(content)
+                speak(content)
+                speak("Email has been sent")
+
+            except Exception as e:
+                print(e)
+                print("Unable to send email")
+                speak("Unable to send email")
+
+        elif "search in chrome" in query: #googleeeee
+            speak("What will you like me to search for you partner")
+            chromepath = "C:/Program Files/Google/Chrome/Application/chrome.exe %s"
+            #location of chrome download on pc
+            
+            search = TakeCommand().lower()
+            wb.get(chromepath).open_new_tab(search + ".com") #only open websites with .com in the end
+            
